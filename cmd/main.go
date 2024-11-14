@@ -8,7 +8,9 @@ import (
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/service"
 	routers "github.com/MentalMentos/ginWeb-Tonik/ginWeb/router"
 	"github.com/gin-gonic/gin"
+	_ "github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	_ "github.com/go-playground/validator/v10"
 	"net/http"
 )
 

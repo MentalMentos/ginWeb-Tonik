@@ -2,10 +2,9 @@ package config
 
 import (
 	"fmt"
-	"gorm.io/driver/mysql"
-	"log"
-
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 )
 
 const (
@@ -17,10 +16,11 @@ const (
 )
 
 func DatabaseConnection() *gorm.DB {
-	sqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
-	db, err := gorm.Open(mysql.Open(sqlInfo), &gorm.Config{})
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
+	//dsn := "host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("connect database error:%v", err)
 	}
 
 	return db
