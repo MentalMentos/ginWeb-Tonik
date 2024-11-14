@@ -16,11 +16,24 @@ type Repository interface {
 }
 
 func (r *RepoImpl) Create(ctx context.Context, us model.User) (int64, error) {
-	err := r.DB.Create(us).WithContext(ctx)
-	if err == nil {
+	tx := r.DB.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := r.DB.Create(&us).WithContext(ctx).Error; err != nil {
+		tx.Rollback()
+		return us.ID, errors.New("id  Cannot create new user")
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		return us.ID, errors.New("id  Cannot create new user")
 	}
 	return us.ID, nil
+
 }
 
 func (r *RepoImpl) Update(ctx context.Context, us model.User) (int64, error) {
@@ -29,16 +42,40 @@ func (r *RepoImpl) Update(ctx context.Context, us model.User) (int64, error) {
 		us.Name,
 		us.Email,
 	}
-	err := r.DB.Model(&model.User{}).Updates(updateUser).WithContext(ctx)
-	if err == nil {
+	tx := r.DB.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := r.DB.Model(&model.User{}).Updates(&updateUser).WithContext(ctx).Error; err != nil {
+		tx.Rollback()
+		return us.ID, errors.New("id  Cannot update user")
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		return us.ID, errors.New("id  Cannot update user")
 	}
 	return updateUser.Id, nil
 }
 
 func (r *RepoImpl) Delete(ctx context.Context, usId int64) (int64, error) {
-	err := r.DB.Delete(usId).WithContext(ctx)
-	if err == nil {
+	tx := r.DB.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := r.DB.Delete(&usId).WithContext(ctx).Error; err != nil {
+		tx.Rollback()
+		return usId, errors.New("id  Cannot delete user")
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		return usId, errors.New("id  Cannot delete user")
 	}
 	return usId, nil
@@ -46,8 +83,21 @@ func (r *RepoImpl) Delete(ctx context.Context, usId int64) (int64, error) {
 
 func (r *RepoImpl) GetByID(ctx context.Context, id int64) (model.User, error) {
 	var us model.User
-	err := r.DB.Find(&us, id).WithContext(ctx)
-	if err == nil {
+
+	tx := r.DB.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := r.DB.Find(&us, id).WithContext(ctx).Error; err != nil {
+		tx.Rollback()
+		return us, errors.New("user is not found")
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		return us, errors.New("user is not found")
 	}
 	return us, nil
@@ -55,9 +105,22 @@ func (r *RepoImpl) GetByID(ctx context.Context, id int64) (model.User, error) {
 
 func (r *RepoImpl) GetAll(ctx context.Context) ([]model.User, error) {
 	var users []model.User
-	err := r.DB.Find(&users)
-	if err == nil {
-		return users, nil
+
+	tx := r.DB.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := r.DB.Find(&users).WithContext(ctx).Error; err != nil {
+		tx.Rollback()
+		return users, errors.New("users are not found")
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return users, errors.New("users are not found")
 	}
 	return users, nil
 }
