@@ -65,8 +65,9 @@ func (serv *Service) FindAll(ctx context.Context) []response.UserResponse {
 	var users []response.UserResponse
 	for _, value := range result {
 		user := response.UserResponse{
-			Id:   value.ID,
-			Name: value.Name,
+			Id:    value.ID,
+			Name:  value.Name,
+			Email: value.Email,
 		}
 		users = append(users, user)
 	}
