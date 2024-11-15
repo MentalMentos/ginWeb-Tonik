@@ -9,7 +9,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func NewRouter(Controller *controller.Controller) *gin.Engine {
+func NewRouter(controller *controller.Controller) *gin.Engine {
 	router := gin.Default()
 	// add swagger
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -17,13 +17,23 @@ func NewRouter(Controller *controller.Controller) *gin.Engine {
 	router.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "welcome home")
 	})
+
 	baseRouter := router.Group("/api")
-	tagsRouter := baseRouter.Group("/tags")
-	tagsRouter.GET("", Controller.FindAll)
-	tagsRouter.GET("/:tagId", Controller.FindById)
-	tagsRouter.POST("", Controller.Create)
-	tagsRouter.PATCH("/:tagId", Controller.Update)
-	tagsRouter.DELETE("/:tagId", Controller.Delete)
+
+	// Маршруты для tags
+	tagRouter := baseRouter.Group("/tags")
+	tagRouter.GET("", controller.FindAll)
+	tagRouter.GET("/:tagId", controller.FindById)
+	tagRouter.POST("", controller.Create)
+	tagRouter.PATCH("/:tagId", controller.Update)
+	tagRouter.DELETE("/:tagId", controller.Delete)
+
+	// Маршруты для users
+	userRouter := baseRouter.Group("/users")
+	userRouter.GET("", controller.FindAll)
+	userRouter.POST("", controller.Create)
+
+	// Добавляйте другие маршруты аналогично для других ресурсов
 
 	return router
 }
