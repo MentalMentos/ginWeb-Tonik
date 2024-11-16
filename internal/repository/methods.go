@@ -3,124 +3,80 @@ package repository
 import (
 	"context"
 	"errors"
+
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/request"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/model"
+	"gorm.io/gorm"
 )
 
 type Repository interface {
 	Create(ctx context.Context, us model.User) (int64, error)
 	Update(ctx context.Context, us model.User) (int64, error)
-	Delete(ctx context.Context, usId int64) (int64, error)
-	GetByID(ctx context.Context, id int64) (model.User, error)
+	Delete(ctx context.Context, usId int64) error
+	GetByEmail(ctx context.Context, email string) (model.User, error)
+	GetByID(ctx context.Context, userID int64) (model.User, error)
 	GetAll(ctx context.Context) ([]model.User, error)
 }
 
+// Create добавляет нового пользователя в базу данных
 func (r *RepoImpl) Create(ctx context.Context, us model.User) (int64, error) {
-	tx := r.DB.Begin()
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := r.DB.Create(&us).WithContext(ctx).Error; err != nil {
-		tx.Rollback()
-		return us.ID, errors.New("id  Cannot create new user")
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		return us.ID, errors.New("id  Cannot create new user")
+	if err := r.DB.WithContext(ctx).Create(&us).Error; err != nil {
+		return 0, errors.New("cannot create new user")
 	}
 	return us.ID, nil
-
 }
 
+// Update обновляет данные пользователя в базе данных
 func (r *RepoImpl) Update(ctx context.Context, us model.User) (int64, error) {
-	var updateUser = request.UpdateUserRequest{
-		us.ID,
-		us.Name,
-		us.Email,
-	}
-	tx := r.DB.Begin()
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := r.DB.Model(&model.User{}).Updates(&updateUser).WithContext(ctx).Error; err != nil {
-		tx.Rollback()
-		return us.ID, errors.New("id  Cannot update user")
+	updateData := request.UpdateUserRequest{
+		Id:    us.ID,
+		Name:  us.Name,
+		Email: us.Email,
 	}
 
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		return us.ID, errors.New("id  Cannot update user")
+	if err := r.DB.WithContext(ctx).Model(&model.User{}).Where("id = ?", us.ID).Updates(updateData).Error; err != nil {
+		return 0, errors.New("cannot update user")
 	}
-	return updateUser.Id, nil
+	return us.ID, nil
 }
 
-func (r *RepoImpl) Delete(ctx context.Context, usId int64) (int64, error) {
-	tx := r.DB.Begin()
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := r.DB.Delete(&usId).WithContext(ctx).Error; err != nil {
-		tx.Rollback()
-		return usId, errors.New("id  Cannot delete user")
+// Delete удаляет пользователя по ID
+func (r *RepoImpl) Delete(ctx context.Context, usId int64) error {
+	if err := r.DB.WithContext(ctx).Delete(&model.User{}, usId).Error; err != nil {
+		return errors.New("cannot delete user")
 	}
-
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		return usId, errors.New("id  Cannot delete user")
-	}
-	return usId, nil
+	return nil
 }
 
-func (r *RepoImpl) GetByID(ctx context.Context, id int64) (model.User, error) {
-	var us model.User
-
-	tx := r.DB.Begin()
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
+// GetByEmail находит пользователя по Email
+func (r *RepoImpl) GetByEmail(ctx context.Context, email string) (model.User, error) {
+	var user model.User
+	if err := r.DB.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return user, errors.New("user not found")
 		}
-	}()
-
-	if err := r.DB.Find(&us, id).WithContext(ctx).Error; err != nil {
-		tx.Rollback()
-		return us, errors.New("user is not found")
+		return user, err
 	}
-
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		return us, errors.New("user is not found")
-	}
-	return us, nil
+	return user, nil
 }
 
+// GetByID находит пользователя по ID
+func (r *RepoImpl) GetByID(ctx context.Context, userID int64) (model.User, error) {
+	var user model.User
+	if err := r.DB.WithContext(ctx).First(&user, userID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return user, errors.New("user not found")
+		}
+		return user, err
+	}
+	return user, nil
+}
+
+// GetAll возвращает всех пользователей
 func (r *RepoImpl) GetAll(ctx context.Context) ([]model.User, error) {
 	var users []model.User
-
-	tx := r.DB.Begin()
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := r.DB.Find(&users).WithContext(ctx).Error; err != nil {
-		tx.Rollback()
-		return users, errors.New("users are not found")
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		return users, errors.New("users are not found")
+	if err := r.DB.WithContext(ctx).Find(&users).Error; err != nil {
+		return nil, errors.New("users not found")
 	}
 	return users, nil
 }

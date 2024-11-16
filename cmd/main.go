@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+
 	router := gin.Default()
 	//fc
 	router.GET("/", func(ctx *gin.Context) {

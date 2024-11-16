@@ -6,13 +6,13 @@ import (
 )
 
 type Service struct {
-	Repository repository.Repository
-	Validate   *validator.Validate
+	repo     repository.Repository
+	Validate *validator.Validate
 }
 
-func New(repository repository.Repository, validate *validator.Validate) *Service {
-	return &Service{
-		Repository: repository,
-		Validate:   validate,
+func New(repo repository.Repository, validate *validator.Validate) *AuthService {
+	return &AuthService{
+		repo: repo,
+		validate,
 	}
 }
