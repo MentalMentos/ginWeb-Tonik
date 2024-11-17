@@ -7,26 +7,25 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type Controller struct {
-	userService service.UserService
+	userService service.Service
 }
 
-func NewController(userService service.UserService) *Controller {
+func NewController(userService service.Service) *Controller {
 	return &Controller{
 		userService: userService,
 	}
 }
 
 func (controller *Controller) Create(c *gin.Context) {
-	userRequest := request.CreateUserRequest{}
+	userRequest := request.RegisterUserRequest{}
 	err := c.ShouldBind(&userRequest) //извлекает данные из тела запроса
 	if err != nil {
 		log.Fatalf("create controller error", err)
 	}
-	controller.userService.Create(c, userRequest)
+	controller.userService.Register(c, userRequest)
 	response := response.Response{
 		http.StatusOK,
 		"Ok",
@@ -50,55 +49,4 @@ func (controller *Controller) Update(c *gin.Context) {
 	}
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusOK, response)
-}
-
-func (controller *Controller) Delete(c *gin.Context) {
-	Id := c.Param("userId")
-	id, err := strconv.ParseInt(Id, 10, 64)
-	if err != nil {
-		log.Fatalf("delete controller error", err)
-	}
-	controller.userService.Delete(c, id)
-
-	webResponse := response.Response{
-		Code:   http.StatusOK,
-		Status: "Ok",
-		Data:   nil,
-	}
-	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusOK, webResponse)
-}
-
-func (controller *Controller) FindById(c *gin.Context) {
-	Id := c.Param("userId")
-	id, err := strconv.ParseInt(Id, 10, 64)
-	if err != nil {
-		log.Fatalf("delete controller error", err)
-	}
-	controller.userService.FindById(c, id)
-
-	webResponse := response.Response{
-		Code:   http.StatusOK,
-		Status: "Ok",
-		Data:   nil,
-	}
-	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusOK, webResponse)
-}
-
-// FindAllTags 		godoc
-// @Summary			Get All tags.
-// @Description		Return list of tags.
-// @Tags			tags
-// @Success			200 {obejct} response.Response{}
-// @Router			/tags [get]
-func (controller *Controller) FindAll(c *gin.Context) {
-	tagResponse := controller.userService.FindAll(c)
-	webResponse := response.Response{
-		Code:   http.StatusOK,
-		Status: "Ok",
-		Data:   tagResponse,
-	}
-	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusOK, webResponse)
 }

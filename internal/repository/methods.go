@@ -29,7 +29,6 @@ func (r *RepoImpl) Create(ctx context.Context, us model.User) (int64, error) {
 // Update обновляет данные пользователя в базе данных
 func (r *RepoImpl) Update(ctx context.Context, us model.User) (int64, error) {
 	updateData := request.UpdateUserRequest{
-		Id:    us.ID,
 		Name:  us.Name,
 		Email: us.Email,
 	}

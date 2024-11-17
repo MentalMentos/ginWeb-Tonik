@@ -10,9 +10,9 @@ type Service struct {
 	Validate *validator.Validate
 }
 
-func New(repo repository.Repository, validate *validator.Validate) *AuthService {
-	return &AuthService{
-		repo: repo,
-		validate,
+func New(repo repository.Repository, validate *validator.Validate) *Service {
+	return &Service{
+		repo:     repo,
+		Validate: validate,
 	}
 }

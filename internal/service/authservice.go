@@ -4,6 +4,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/response"
 	_ "github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/repository"
 
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/request"
@@ -16,6 +17,8 @@ import (
 type AuthService interface {
 	Register(ctx context.Context, req request.RegisterUserRequest) (*model.AuthResponse, error)
 	Login(ctx context.Context, req request.LoginRequest) (*model.AuthResponse, error)
+	GetAccessToken(ctx context.Context, req request.LoginRequest) (*model.AuthResponse, error)
+	UpdatePassword(ctx context.Context, req request.UpdateUserRequest) (*model.AuthResponse, error)
 }
 
 func (s *Service) Register(ctx context.Context, req request.RegisterUserRequest) (*model.AuthResponse, error) {
@@ -30,7 +33,8 @@ func (s *Service) Register(ctx context.Context, req request.RegisterUserRequest)
 		Password: string(hashedPassword),
 		Role:     "user",
 	}
-	if err := s.repo.Create(ctx, req) {
+	_, err = s.repo.Create(ctx, user)
+	if err != nil {
 		return nil, err
 	}
 
@@ -45,7 +49,7 @@ func (s *Service) Register(ctx context.Context, req request.RegisterUserRequest)
 	}, nil
 }
 
-func (s *authService) Login(ctx context.Context, req request.LoginRequest) (*model.AuthResponse, error) {
+func (s *Service) Login(ctx context.Context, req request.LoginRequest) (*model.AuthResponse, error) {
 	user, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, errors.New("user not found")
@@ -64,5 +68,43 @@ func (s *authService) Login(ctx context.Context, req request.LoginRequest) (*mod
 	return &model.AuthResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (s *Service) UpdatePassword(ctx context.Context, req request.UpdateUserRequest) (*model.AuthResponse, error) {
+	user, err := s.repo.GetByEmail(ctx, req.Email)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	if err != nil {
+		return nil, errors.New("invalid password")
+	}
+	accessToken, refreshToken, err := utils.GenerateJWT(user.ID, user.Role)
+	if err != nil {
+		return nil, err
+	}
+
+}
+
+// Метод для обновления access token
+func (s *Service) GetAccessToken(ctx context.Context, refreshToken string) (*response.AuthResponse, error) {
+	// Валидация refresh token
+	claims, err := utils.ValidateJWT(refreshToken)
+	if err != nil {
+		return nil, errors.New("invalid refresh token")
+	}
+
+	// Генерация нового набора токенов
+	newAccessToken, newRefreshToken, err := utils.GenerateJWT(claims.UserID, claims.Role)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response.AuthResponse{
+		UserID:       claims.UserID,
+		AccessToken:  newAccessToken,
+		RefreshToken: newRefreshToken,
 	}, nil
 }
