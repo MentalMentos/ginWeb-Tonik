@@ -6,7 +6,6 @@ import (
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/model"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/repository"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/service"
-	routers "github.com/MentalMentos/ginWeb-Tonik/ginWeb/router"
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -31,21 +30,11 @@ func main() {
 	Repository := repository.NewRepo(db)
 
 	// Service
-	Service := service.New(Repository, validate)
+	service := service.New(Repository, validate)
 
 	// Controller
-	Controller := controller.NewAuthController(Service)
+	Controller := controller.NewAuthController(service)
 
-	// Router
-	routes := routers.NewRouter(Controller)
+	// TODO: routes
 
-	server := &http.Server{
-		Addr:    ":8888",
-		Handler: routes,
-	}
-
-	err := server.ListenAndServe()
-	if err != nil {
-		panic(err)
-	}
 }

@@ -12,9 +12,9 @@ type AuthController struct {
 	authService service.Service
 }
 
-func NewAuthController(authService service.Service) *AuthController {
+func NewAuthController(authService *service.Service) *AuthController {
 	return &AuthController{
-		authService: authService,
+		authService: *authService,
 	}
 }
 
