@@ -9,10 +9,10 @@ import (
 )
 
 type AuthController struct {
-	authService service.AuthService
+	authService service.Service
 }
 
-func NewAuthController(authService service.AuthService) *AuthController {
+func NewAuthController(authService service.Service) *AuthController {
 	return &AuthController{
 		authService: authService,
 	}
@@ -80,7 +80,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 
 // RefreshToken контроллер для обновления access токена
 func (controller *AuthController) RefreshToken(c *gin.Context) {
-	var tokenRequest request.RefreshTokenRequest
+	var tokenRequest request.UpdateTokenRequest
 	if err := c.ShouldBindJSON(&tokenRequest); err != nil {
 		c.JSON(http.StatusBadRequest, response.Response{
 			Code:   http.StatusBadRequest,

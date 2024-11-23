@@ -34,7 +34,7 @@ func main() {
 	Service := service.New(Repository, validate)
 
 	// Controller
-	Controller := controller.NewController(Service)
+	Controller := controller.NewAuthController(Service)
 
 	// Router
 	routes := routers.NewRouter(Controller)

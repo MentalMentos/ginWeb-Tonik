@@ -1,39 +1,42 @@
+// routes/auth_routes.go
 package routers
 
 import (
-	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/controller"
 	"net/http"
 
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/request"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/service"
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func NewRouter(controller *controller.Controller) *gin.Engine {
-	router := gin.Default()
-	// add swagger
-	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+func RegisterAuthRoutes(router *gin.Engine, authService service.AuthService) {
+	router.POST("/register", func(c *gin.Context) {
+		var req request.RegisterUserRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-	router.GET("", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, "welcome home")
+		resp, err := authService.Register(c, req)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, resp)
 	})
 
-	baseRouter := router.Group("/api")
+	router.POST("/login", func(c *gin.Context) {
+		var req request.LoginRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-	// Маршруты для tags
-	tagRouter := baseRouter.Group("/tags")
-	tagRouter.GET("", controller.FindAll)
-	tagRouter.GET("/:tagId", controller.FindById)
-	tagRouter.POST("", controller.Create)
-	tagRouter.PATCH("/:tagId", controller.Update)
-	tagRouter.DELETE("/:tagId", controller.Delete)
-
-	// Маршруты для users
-	userRouter := baseRouter.Group("/users")
-	userRouter.GET("", controller.FindAll)
-	userRouter.POST("", controller.Create)
-
-	// Добавляйте другие маршруты аналогично для других ресурсов
-
-	return router
+		resp, err := authService.Login(c, req)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, resp)
+	})
 }

@@ -18,7 +18,7 @@ type AuthService interface {
 	Register(ctx context.Context, req request.RegisterUserRequest) (*model.AuthResponse, error)
 	Login(ctx context.Context, req request.LoginRequest) (*model.AuthResponse, error)
 	GetAccessToken(ctx context.Context, req request.LoginRequest) (*model.AuthResponse, error)
-	UpdatePassword(ctx context.Context, req request.UpdateUserRequest) (*model.AuthResponse, error)
+	UpdatePassword(ctx context.Context, req request.UpdateUserRequest) (*response.UpdatePasswordResponse, error)
 }
 
 func (s *Service) Register(ctx context.Context, req request.RegisterUserRequest) (*model.AuthResponse, error) {
@@ -71,7 +71,7 @@ func (s *Service) Login(ctx context.Context, req request.LoginRequest) (*model.A
 	}, nil
 }
 
-func (s *Service) UpdatePassword(ctx context.Context, req request.UpdateUserRequest) (*model.AuthResponse, error) {
+func (s *Service) UpdatePassword(ctx context.Context, req request.UpdateUserRequest) (*response.UpdatePasswordResponse, error) {
 	user, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, errors.New("user not found")
@@ -85,9 +85,10 @@ func (s *Service) UpdatePassword(ctx context.Context, req request.UpdateUserRequ
 	if err != nil {
 		return nil, err
 	}
-	return &model.AuthResponse{
+	return &response.UpdatePasswordResponse{
 		accessToken,
 		refreshToken,
+		req.Name,
 	}, nil
 }
 
@@ -106,7 +107,6 @@ func (s *Service) GetAccessToken(ctx context.Context, refreshToken string) (*res
 	}
 
 	return &response.AuthResponse{
-		UserID:       claims.UserID,
 		AccessToken:  newAccessToken,
 		RefreshToken: newRefreshToken,
 	}, nil
