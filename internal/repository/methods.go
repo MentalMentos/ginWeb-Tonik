@@ -13,6 +13,7 @@ type Repository interface {
 	Create(ctx context.Context, us model.User) (int64, error)
 	Update(ctx context.Context, us model.User) (int64, error)
 	Delete(ctx context.Context, usId int64) error
+	UpdatePassword(ctx context.Context, us model.User, hashPassword string) (model.User, error)
 	GetByEmail(ctx context.Context, email string) (model.User, error)
 	GetByID(ctx context.Context, userID int64) (model.User, error)
 	GetAll(ctx context.Context) ([]model.User, error)
@@ -45,6 +46,18 @@ func (r *RepoImpl) Delete(ctx context.Context, usId int64) error {
 		return errors.New("cannot delete user")
 	}
 	return nil
+}
+
+func (r *RepoImpl) UpdatePassword(ctx context.Context, us model.User, hashPassword string) (model.User, error) {
+	updateUser := request.UpdateUserRequest{
+		Name:     us.Name,
+		Email:    us.Email,
+		Password: hashPassword,
+	}
+	if err := r.DB.WithContext(ctx).Updates(&updateUser).Error; err != nil {
+		return model.User{}, errors.New("cannot update password")
+	}
+	return us, nil
 }
 
 // GetByEmail находит пользователя по Email

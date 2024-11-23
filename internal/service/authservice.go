@@ -85,7 +85,10 @@ func (s *Service) UpdatePassword(ctx context.Context, req request.UpdateUserRequ
 	if err != nil {
 		return nil, err
 	}
-
+	return &model.AuthResponse{
+		accessToken,
+		refreshToken,
+	}, nil
 }
 
 // Метод для обновления access token
