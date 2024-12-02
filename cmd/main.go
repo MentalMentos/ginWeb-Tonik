@@ -10,6 +10,7 @@ import (
 	_ "github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-playground/validator/v10"
+	"log"
 	"net/http"
 )
 
@@ -33,8 +34,12 @@ func main() {
 	service := service.New(Repository, validate)
 
 	// Controller
-	Controller := controller.NewAuthController(service)
+	controller := controller.NewAuthController(service)
 
-	// TODO: routes
+	router.POST("/tasks", func(c *gin.Context) { controller.Register(c) })
+	//	log.Info("Main", "Starting server on port 8080")
+	if err := router.Run(":8080"); err != nil {
+		log.Fatal("Main", "Failed to start server")
+	}
 
 }
