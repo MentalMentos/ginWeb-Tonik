@@ -24,9 +24,9 @@ func main() {
 	validate := validator.New()
 	db.Table("tags").AutoMigrate(&model.User{})
 
-	Repository := repository.NewRepo(db)
-	service := service.New(Repository, validate)
-	authController := controller.NewAuthController(service)
+	authRepository := repository.NewRepo(db)
+	authService := service.New(authRepository, validate)
+	authController := controller.NewAuthController(authService)
 
 	authRoutes := router.Group("/auth")
 	{
