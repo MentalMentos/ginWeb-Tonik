@@ -17,36 +17,6 @@ func NewAuthController(authService *service.Service) *AuthController {
 	}
 }
 
-//// Register контроллер для регистрации пользователей
-//func (controller *AuthController) Register(c *gin.Context) {
-//	var userRequest request.RegisterUserRequest
-//	if err := c.ShouldBindJSON(&userRequest); err != nil {
-//		c.JSON(http.StatusBadRequest, response.Response{
-//			Code:   http.StatusBadRequest,
-//			Status: "Invalid request payload",
-//			Data:   nil,
-//		})
-//		return
-//	}
-//
-//	// Вызов Register метода из AuthService
-//	authResp, err := controller.authService.Register(c, userRequest)
-//	if err != nil {
-//		c.JSON(http.StatusInternalServerError, response.Response{
-//			Code:   http.StatusInternalServerError,
-//			Status: err.Error(),
-//			Data:   nil,
-//		})
-//		return
-//	}
-//
-//	c.JSON(http.StatusOK, response.Response{
-//		Code:   http.StatusOK,
-//		Status: "Registration successful",
-//		Data:   authResp,
-//	})
-//}
-
 func (controller *AuthController) Register(c *gin.Context) {
 	var userRequest request.RegisterUserRequest
 	if err := c.ShouldBindJSON(&userRequest); err != nil {
