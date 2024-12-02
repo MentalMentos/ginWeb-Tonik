@@ -15,31 +15,28 @@ import (
 )
 
 func main() {
-
 	router := gin.Default()
-	//fc
 	router.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, "welcome home")
+		ctx.JSON(http.StatusOK, "Welcome Home!")
 	})
 
 	db := config.DatabaseConnection()
 	validate := validator.New()
-
 	db.Table("tags").AutoMigrate(&model.User{})
 
-	// Repository
 	Repository := repository.NewRepo(db)
-
-	// Service
 	service := service.New(Repository, validate)
+	authController := controller.NewAuthController(service)
 
-	// Controller
-	controller := controller.NewAuthController(service)
+	authRoutes := router.Group("/auth")
+	{
+		authRoutes.POST("/register", authController.Register)             // Регистрация
+		authRoutes.POST("/login", authController.Login)                   // Вход
+		authRoutes.POST("/refresh", authController.RefreshToken)          // Обновление токена
+		authRoutes.PUT("/update-password", authController.UpdatePassword) // Обновление пароля
+	}
 
-	router.POST("/tasks", func(c *gin.Context) { controller.Register(c) })
-	//	log.Info("Main", "Starting server on port 8080")
 	if err := router.Run(":8080"); err != nil {
 		log.Fatal("Main", "Failed to start server")
 	}
-
 }
