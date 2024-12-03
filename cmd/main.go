@@ -22,7 +22,7 @@ func main() {
 
 	db := config.DatabaseConnection()
 	validate := validator.New()
-	db.Table("tags").AutoMigrate(&model.User{})
+	db.Table("users").AutoMigrate(&model.User{})
 
 	authRepository := repository.NewRepo(db)
 	authService := service.New(authRepository, validate)
