@@ -31,6 +31,7 @@ func (s *Service) Register(ctx context.Context, req request.RegisterUserRequest)
 		Email:    req.Email,
 		Password: string(hashedPassword),
 		Role:     "user",
+		IP:       req.IP,
 	}
 	_, err = s.repo.Create(ctx, user)
 	if err != nil {

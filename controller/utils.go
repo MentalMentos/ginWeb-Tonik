@@ -3,7 +3,9 @@ package controller
 import (
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/response"
 	"github.com/gin-gonic/gin"
+	"net"
 	"net/http"
+	"strings"
 )
 
 type ApiError struct {
@@ -29,4 +31,23 @@ func JsonResponse(c *gin.Context, status int, message string, data interface{}) 
 		Status: message,
 		Data:   data,
 	})
+}
+
+func GetClientIP(c *gin.Context) string {
+	xForwardedFor := c.GetHeader("X-Forwarded-For")
+	if xForwardedFor != "" {
+		ips := strings.Split(xForwardedFor, ",")
+		return strings.TrimSpace(ips[0]) // Возвращаем первый IP
+	}
+
+	xRealIP := c.GetHeader("X-Real-IP")
+	if xRealIP != "" {
+		return xRealIP
+	}
+
+	ip, _, err := net.SplitHostPort(c.Request.RemoteAddr)
+	if err != nil {
+		return c.Request.RemoteAddr
+	}
+	return ip
 }

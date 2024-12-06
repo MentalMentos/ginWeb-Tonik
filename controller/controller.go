@@ -24,6 +24,8 @@ func (controller *AuthController) Register(c *gin.Context) {
 		return
 	}
 
+	userRequest.IP = GetClientIP(c)
+
 	authResp, err := controller.authService.Register(c, userRequest)
 	if err != nil {
 		HandleError(c, err)
