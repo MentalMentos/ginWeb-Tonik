@@ -8,7 +8,6 @@ import (
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/service"
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	_ "github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
@@ -21,11 +20,11 @@ func main() {
 	})
 
 	db := config.DatabaseConnection()
-	validate := validator.New()
+	//validate := validator.New()
 	db.Table("users").AutoMigrate(&model.User{})
 
 	authRepository := repository.NewRepo(db)
-	authService := service.New(authRepository, validate)
+	authService := service.New(authRepository)
 	authController := controller.NewAuthController(authService)
 
 	authRoutes := router.Group("/auth")

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var jwtSecret = []byte("your_secret_key")
+var jwtSecret = []byte("secret_key")
 
 type Claims struct {
 	UserID int64  `json:"user_id"`

@@ -25,7 +25,6 @@ func (controller *AuthController) Register(c *gin.Context) {
 	}
 
 	userRequest.IP = GetClientIP(c)
-
 	authResp, err := controller.authService.Register(c, userRequest)
 	if err != nil {
 		HandleError(c, err)
@@ -42,6 +41,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 		return
 	}
 
+	userRequest.IP = GetClientIP(c)
 	authResp, err := controller.authService.Login(c, userRequest)
 	if err != nil {
 		HandleError(c, err)
@@ -58,6 +58,7 @@ func (controller *AuthController) UpdatePassword(c *gin.Context) {
 		return
 	}
 
+	userRequest.IP = GetClientIP(c)
 	authResp, err := controller.authService.UpdatePassword(c, userRequest)
 	if err != nil {
 		HandleError(c, err)
