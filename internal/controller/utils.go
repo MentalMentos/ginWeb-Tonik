@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/response"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/data/response"
 	"github.com/gin-gonic/gin"
 	"net"
 	"net/http"

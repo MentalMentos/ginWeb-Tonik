@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/config"
-	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/controller"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/config"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/controller"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/model"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/repository"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/service"

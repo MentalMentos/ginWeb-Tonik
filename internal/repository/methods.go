@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/data/request"
 
-	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/request"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/model"
 	"gorm.io/gorm"
 )

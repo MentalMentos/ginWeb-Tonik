@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/request"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/data/request"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"

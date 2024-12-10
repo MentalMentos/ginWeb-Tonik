@@ -3,14 +3,14 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/response"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/data/request"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/data/response"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/repository"
 	_ "github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/repository"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/pkg/utils"
 
-	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/request"
-	_ "github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/response"
+	_ "github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/data/response"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/model"
-	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
