@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/data/response"
 	"github.com/gin-gonic/gin"
 	"net"
@@ -37,17 +38,22 @@ func GetClientIP(c *gin.Context) string {
 	xForwardedFor := c.GetHeader("X-Forwarded-For")
 	if xForwardedFor != "" {
 		ips := strings.Split(xForwardedFor, ",")
-		return strings.TrimSpace(ips[0]) // Возвращаем первый IP
+		clientIP := strings.TrimSpace(ips[0])
+		fmt.Printf("X-Forwarded-For: %s, Resolved IP: %s\n", xForwardedFor, clientIP)
+		return clientIP
 	}
 
 	xRealIP := c.GetHeader("X-Real-IP")
 	if xRealIP != "" {
+		fmt.Printf("X-Real-IP: %s\n", xRealIP)
 		return xRealIP
 	}
 
 	ip, _, err := net.SplitHostPort(c.Request.RemoteAddr)
 	if err != nil {
+		fmt.Printf("RemoteAddr (raw): %s, Error: %v\n", c.Request.RemoteAddr, err)
 		return c.Request.RemoteAddr
 	}
+	fmt.Printf("RemoteAddr (parsed): %s\n", ip)
 	return ip
 }

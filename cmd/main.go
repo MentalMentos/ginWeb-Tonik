@@ -15,10 +15,15 @@ import (
 
 func main() {
 	router := gin.Default()
+	router.SetTrustedProxies(nil) // Доверять всем прокси
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "Welcome Home!")
 	})
-
+	router.GET("/ip", func(c *gin.Context) {
+		// Получаем IP клиента
+		clientIP := c.ClientIP() // Автоматически извлекает IP с учётом заголовков X-Forwarded-For, X-Real-IP
+		c.JSON(200, gin.H{"ip": clientIP})
+	})
 	db := config.DatabaseConnection()
 	//validate := validator.New()
 	db.Table("users").AutoMigrate(&model.User{})
