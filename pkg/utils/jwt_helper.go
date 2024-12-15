@@ -1,4 +1,3 @@
-// utils/jwt_helper.go
 package utils
 
 import (

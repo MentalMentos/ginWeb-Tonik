@@ -3,17 +3,20 @@ package controller
 import (
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/data/request"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/service"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type AuthController struct {
 	authService service.Service
+	logger      logger.Logger
 }
 
-func NewAuthController(authService *service.Service) *AuthController {
+func NewAuthController(authService *service.Service, logger logger.Logger) *AuthController {
 	return &AuthController{
 		authService: *authService,
+		logger:      logger,
 	}
 }
 

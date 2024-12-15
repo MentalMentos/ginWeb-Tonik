@@ -32,7 +32,7 @@ func main() {
 	authService := service.New(authRepository)
 	authController := controller.NewAuthController(authService)
 
-	authRoutes := router.Group("/auth")
+	authRoutes := router.Group("/auth_v1")
 	{
 		authRoutes.POST("/register", authController.Register)             // Регистрация
 		authRoutes.POST("/login", authController.Login)                   // Вход

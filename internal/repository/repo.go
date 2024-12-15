@@ -1,11 +1,18 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/pkg/logger"
+	"gorm.io/gorm"
+)
 
 type RepoImpl struct {
-	DB *gorm.DB
+	DB     *gorm.DB
+	logger logger.Logger
 }
 
-func NewRepo(db *gorm.DB) *RepoImpl {
-	return &RepoImpl{db}
+func NewRepo(db *gorm.DB, logger logger.Logger) *RepoImpl {
+	return &RepoImpl{
+		db,
+		logger,
+	}
 }

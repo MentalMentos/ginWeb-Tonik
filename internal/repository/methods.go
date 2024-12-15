@@ -4,30 +4,31 @@ import (
 	"context"
 	"errors"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/data/request"
+	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/pkg/logger"
 
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/model"
 	"gorm.io/gorm"
 )
 
 type Repository interface {
-	Create(ctx context.Context, us model.User) (int64, error)
-	Update(ctx context.Context, us model.User) (int64, error)
-	Delete(ctx context.Context, usId int64) error
-	UpdatePassword(ctx context.Context, us model.User, hashPassword string) (model.User, error)
-	UpdateIP(ctx context.Context, us model.User, ip string) (model.User, error)
-	GetByEmail(ctx context.Context, email string) (model.User, error)
-	GetByID(ctx context.Context, userID int64) (model.User, error)
-	GetAll(ctx context.Context) ([]model.User, error)
+	Create(ctx context.Context, us model.User, logger logger.Logger) (int64, error)
+	Update(ctx context.Context, us model.User, logger logger.Logger) (int64, error)
+	Delete(ctx context.Context, usId int64, logger logger.Logger) error
+	UpdatePassword(ctx context.Context, us model.User, hashPassword string, logger logger.Logger) (model.User, error)
+	UpdateIP(ctx context.Context, us model.User, ip string, logger logger.Logger) (model.User, error)
+	GetByEmail(ctx context.Context, email string, logger logger.Logger) (model.User, error)
+	GetByID(ctx context.Context, userID int64, logger logger.Logger) (model.User, error)
+	GetAll(ctx context.Context, logger logger.Logger) ([]model.User, error)
 }
 
-func (r *RepoImpl) Create(ctx context.Context, us model.User) (int64, error) {
+func (r *RepoImpl) Create(ctx context.Context, us model.User, logger logger.Logger) (int64, error) {
 	if err := r.DB.WithContext(ctx).Create(&us).Error; err != nil {
 		return 0, errors.New("cannot create new user")
 	}
 	return us.ID, nil
 }
 
-func (r *RepoImpl) Update(ctx context.Context, us model.User) (int64, error) {
+func (r *RepoImpl) Update(ctx context.Context, us model.User, logger logger.Logger) (int64, error) {
 	updateData := request.UpdateUserRequest{
 		Name:  us.Name,
 		Email: us.Email,
@@ -39,14 +40,14 @@ func (r *RepoImpl) Update(ctx context.Context, us model.User) (int64, error) {
 	return us.ID, nil
 }
 
-func (r *RepoImpl) Delete(ctx context.Context, usId int64) error {
+func (r *RepoImpl) Delete(ctx context.Context, usId int64, logger logger.Logger) error {
 	if err := r.DB.WithContext(ctx).Delete(&model.User{}, usId).Error; err != nil {
 		return errors.New("cannot delete user")
 	}
 	return nil
 }
 
-func (r *RepoImpl) UpdatePassword(ctx context.Context, us model.User, hashPassword string) (model.User, error) {
+func (r *RepoImpl) UpdatePassword(ctx context.Context, us model.User, hashPassword string, logger logger.Logger) (model.User, error) {
 	updateUser := request.UpdateUserRequest{
 		Name:     us.Name,
 		Email:    us.Email,
@@ -58,7 +59,7 @@ func (r *RepoImpl) UpdatePassword(ctx context.Context, us model.User, hashPasswo
 	return us, nil
 }
 
-func (r *RepoImpl) GetByEmail(ctx context.Context, email string) (model.User, error) {
+func (r *RepoImpl) GetByEmail(ctx context.Context, email string, logger logger.Logger) (model.User, error) {
 	var user model.User
 	if err := r.DB.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -69,7 +70,7 @@ func (r *RepoImpl) GetByEmail(ctx context.Context, email string) (model.User, er
 	return user, nil
 }
 
-func (r *RepoImpl) GetByID(ctx context.Context, userID int64) (model.User, error) {
+func (r *RepoImpl) GetByID(ctx context.Context, userID int64, logger logger.Logger) (model.User, error) {
 	var user model.User
 	if err := r.DB.WithContext(ctx).First(&user, userID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -80,7 +81,7 @@ func (r *RepoImpl) GetByID(ctx context.Context, userID int64) (model.User, error
 	return user, nil
 }
 
-func (r *RepoImpl) GetAll(ctx context.Context) ([]model.User, error) {
+func (r *RepoImpl) GetAll(ctx context.Context, logger logger.Logger) ([]model.User, error) {
 	var users []model.User
 	if err := r.DB.WithContext(ctx).Find(&users).Error; err != nil {
 		return nil, errors.New("users not found")
@@ -88,7 +89,7 @@ func (r *RepoImpl) GetAll(ctx context.Context) ([]model.User, error) {
 	return users, nil
 }
 
-func (r *RepoImpl) UpdateIP(ctx context.Context, us model.User, ip string) (model.User, error) {
+func (r *RepoImpl) UpdateIP(ctx context.Context, us model.User, ip string, logger logger.Logger) (model.User, error) {
 	updateUser := request.UpdateUserRequest{
 		Name:     us.Name,
 		Email:    us.Email,
