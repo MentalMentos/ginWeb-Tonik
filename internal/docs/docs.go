@@ -27,7 +27,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "obejct"
+                            "type": "object"
                         }
                     }
                 }
@@ -84,7 +84,7 @@ const docTemplate = `{
         },
         "/tags/{tagId}": {
             "get": {
-                "description": "Return the tahs whoes tagId valu mathes id.",
+                "description": "Return the tags who's tagId value matches id.",
                 "produces": [
                     "application/json"
                 ],
@@ -180,7 +180,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8888",
+	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "Tag Service API",

@@ -6,10 +6,10 @@ import (
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/model"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/repository"
 	"github.com/MentalMentos/ginWeb-Tonik/ginWeb/internal/service"
+	zaplogger "github.com/MentalMentos/ginWeb-Tonik/ginWeb/pkg/logger/zap"
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
 	_ "github.com/go-playground/validator/v10"
-	"log"
 	"net/http"
 )
 
@@ -24,13 +24,14 @@ func main() {
 		clientIP := c.ClientIP() // Автоматически извлекает IP с учётом заголовков X-Forwarded-For, X-Real-IP
 		c.JSON(200, gin.H{"ip": clientIP})
 	})
-	db := config.DatabaseConnection()
+	log := zaplogger.New()
+	db := config.DatabaseConnection(log)
 	//validate := validator.New()
 	db.Table("users").AutoMigrate(&model.User{})
 
-	authRepository := repository.NewRepo(db)
-	authService := service.New(authRepository)
-	authController := controller.NewAuthController(authService)
+	authRepository := repository.NewRepo(db, log)
+	authService := service.New(authRepository, log)
+	authController := controller.NewAuthController(authService, log)
 
 	authRoutes := router.Group("/auth_v1")
 	{
