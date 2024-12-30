@@ -7,12 +7,10 @@ import (
 
 type Service struct {
 	*AuthService
-	logger logger.Logger
 }
 
 func New(repo repository.Repository, logger logger.Logger) *Service {
 	return &Service{
 		NewAuthService(repo, logger),
-		logger,
 	}
 }

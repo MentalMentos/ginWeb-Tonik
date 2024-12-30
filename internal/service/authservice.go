@@ -36,10 +36,9 @@ func NewAuthService(repo repository.Repository, logger logger.Logger) *AuthServi
 }
 
 func (s *AuthService) Register(ctx context.Context, req request.RegisterUserRequest) (*model.AuthResponse, error) {
-	logger := s.logger
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		logger.Fatal("[ SERVICE_REGISTER ]", helpers.FailedToHashPass)
+		s.logger.Fatal("[ SERVICE_REGISTER ]", helpers.FailedToHashPass)
 		return nil, err
 	}
 
@@ -51,15 +50,15 @@ func (s *AuthService) Register(ctx context.Context, req request.RegisterUserRequ
 		IP:       req.IP,
 	}
 
-	_, err = s.repo.Create(ctx, user, logger)
+	_, err = s.repo.Create(ctx, user, s.logger)
 	if err != nil {
-		logger.Fatal("[ SERVICE_REGISTER ]", helpers.FailedToCreateUser)
+		s.logger.Fatal("[ SERVICE_REGISTER ]", helpers.FailedToCreateUser)
 		return nil, err
 	}
 
 	accessToken, refreshToken, err := utils.GenerateJWT(user.ID, user.Role)
 	if err != nil {
-		logger.Fatal("[ SERVICE_REGISTER ]", helpers.FailedToGenJWT)
+		s.logger.Fatal("[ SERVICE_REGISTER ]", helpers.FailedToGenJWT)
 		return nil, err
 	}
 
@@ -70,30 +69,29 @@ func (s *AuthService) Register(ctx context.Context, req request.RegisterUserRequ
 }
 
 func (s *AuthService) Login(ctx context.Context, req request.LoginRequest) (*model.AuthResponse, error) {
-	logger := s.logger
-	user, err := s.repo.GetByEmail(ctx, req.Email, logger)
+	user, err := s.repo.GetByEmail(ctx, req.Email, s.logger)
 	if err != nil {
-		logger.Fatal("[ SERVICE_LOGIN ]", helpers.FailedToGetUser)
+		s.logger.Fatal("[ SERVICE_LOGIN ]", helpers.FailedToGetUser)
 		return nil, errors.New("user not found")
 	}
 
 	if user.IP != req.IP {
-		_, err := s.repo.UpdateIP(ctx, user, req.IP, logger)
+		_, err := s.repo.UpdateIP(ctx, user, req.IP, s.logger)
 		if err != nil {
-			logger.Fatal("[ SERVICE_LOGIN ]", "failed to update ip")
+			s.logger.Fatal("[ SERVICE_LOGIN ]", "failed to update ip")
 			return nil, errors.New("cannot update ip with login")
 		}
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
-		logger.Fatal("[ SERVICE_LOGIN ]", helpers.FailedToHashPass)
+		s.logger.Fatal("[ SERVICE_LOGIN ]", helpers.FailedToHashPass)
 		return nil, errors.New("invalid password")
 	}
 
 	accessToken, refreshToken, err := utils.GenerateJWT(user.ID, user.Role)
 	if err != nil {
-		logger.Fatal("[ SERVICE_LOGIN ]", helpers.FailedToGenJWT)
+		s.logger.Fatal("[ SERVICE_LOGIN ]", helpers.FailedToGenJWT)
 		return nil, err
 	}
 
@@ -104,29 +102,28 @@ func (s *AuthService) Login(ctx context.Context, req request.LoginRequest) (*mod
 }
 
 func (s *AuthService) UpdatePassword(ctx context.Context, req request.UpdateUserRequest) (*response.UpdatePasswordResponse, error) {
-	logger := s.logger
-	user, err := s.repo.GetByEmail(ctx, req.Email, logger)
+	user, err := s.repo.GetByEmail(ctx, req.Email, s.logger)
 	if err != nil {
-		logger.Fatal("[ SERVICE_UPDATE_PASSWORD ]", helpers.FailedToGetUser)
+		s.logger.Fatal("[ SERVICE_UPDATE_PASSWORD ]", helpers.FailedToGetUser)
 		return nil, errors.New("user not found")
 	}
 
 	if user.IP != req.IP {
-		_, err := s.repo.UpdateIP(ctx, user, req.IP, logger)
+		_, err := s.repo.UpdateIP(ctx, user, req.IP, s.logger)
 		if err != nil {
-			logger.Fatal("[ SERVICE_UPDATE_PASSWORD ]", "failed to update ip with login")
+			s.logger.Fatal("[ SERVICE_UPDATE_PASSWORD ]", "failed to update ip with login")
 			return nil, errors.New("cannot update ip with login")
 		}
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
-		logger.Fatal("[ SERVICE_UPDATE_PASSWORD ]", "invalid password")
+		s.logger.Fatal("[ SERVICE_UPDATE_PASSWORD ]", "invalid password")
 		return nil, errors.New("invalid password")
 	}
 	accessToken, refreshToken, err := utils.GenerateJWT(user.ID, user.Role)
 	if err != nil {
-		logger.Fatal("[ SERVICE_UPDATE_PASSWORD ]", "failed to generate access token")
+		s.logger.Fatal("[ SERVICE_UPDATE_PASSWORD ]", "failed to generate access token")
 		return nil, err
 	}
 	return &response.UpdatePasswordResponse{
@@ -138,18 +135,17 @@ func (s *AuthService) UpdatePassword(ctx context.Context, req request.UpdateUser
 
 // Метод для обновления access token
 func (s *AuthService) GetAccessToken(ctx context.Context, refreshToken string) (*response.AuthResponse, error) {
-	logger := s.logger
 	// Валидация refresh token
 	claims, err := utils.ValidateJWT(refreshToken)
 	if err != nil {
-		logger.Fatal("[ SERVICE_GET_ACCESS_TOKEN ]", "failed to validate tokens")
+		s.logger.Fatal("[ SERVICE_GET_ACCESS_TOKEN ]", "failed to validate tokens")
 		return nil, errors.New("invalid refresh token")
 	}
 
 	// Генерация нового набора токенов
 	newAccessToken, newRefreshToken, err := utils.GenerateJWT(claims.UserID, claims.Role)
 	if err != nil {
-		logger.Fatal("[ SERVICE_GET_ACCESS_TOKEN ]", "failed to generate access tokens")
+		s.logger.Fatal("[ SERVICE_GET_ACCESS_TOKEN ]", "failed to generate access tokens")
 		return nil, err
 	}
 
